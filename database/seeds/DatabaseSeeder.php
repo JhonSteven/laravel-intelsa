@@ -11,6 +11,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // $this->call(UserSeeder::class);
+        $this->call([
+            UserSeeder::class,
+            GenreSeeder::class,
+            IdentificationTypeSeeder::class,
+            CareerSeeder::class,
+            StudentSeeder::class
+        ]);
+
+        //Seeder for Passport keys
+        Artisan::call('passport:client --name=demo --no-interaction --personal');
     }
 }
