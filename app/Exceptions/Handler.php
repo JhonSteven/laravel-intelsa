@@ -5,6 +5,16 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
+use Illuminate\Database\QueryException;
+use Illuminate\Session\TokenMismatchException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+
 class Handler extends ExceptionHandler
 {
     /**
@@ -50,6 +60,69 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        return parent::render($request, $exception);
+        if ($exception instanceof ModelNotFoundException) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Recurso no encontrado'
+            ], 404);
+        }
+        if ($exception instanceof NotFoundHttpException) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Ruta no encontrada'
+            ], 404);
+        }
+
+        if ($exception instanceof ValidationException) {
+            return response()->json([
+                'error' => $exception->errors(),
+                'message' => 'Hay un error en los datos',
+            ], 422);
+        }
+
+        if ($exception instanceof AuthenticationException) {
+            return response()->json([
+                'error' => true,
+                'message' => 'No está autenticado'
+            ], 401);
+        }
+
+        if ($exception instanceof AuthorizationException) {
+            return response()->json([
+                'error' => true,
+                'message' => 'No está autorizado para ejecutar esta acción'
+            ], 403);
+        }
+
+        if ($exception instanceof MethodNotAllowedHttpException) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Método no permitido'
+            ], 405);
+        }
+
+        if ($exception instanceof HttpException) {
+            return response()->json([
+                'error' => true,
+                'message' => 'api.errors.'.$exception->getMessage()
+            ], $exception->getStatusCode());
+        }
+
+        if ($exception instanceof QueryException) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Error en query'
+            ], 409);
+
+        }
+
+        if ($exception instanceof TokenMismatchException) {
+            return redirect()->back()->withInput($request->input());
+        }
+
+        if (config('app.debug')) {
+            return parent::render($request, $exception);
+        }
+
     }
 }

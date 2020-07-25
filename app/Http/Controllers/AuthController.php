@@ -12,16 +12,23 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
+        //Validate input data
         $request->validate([
-            'email'       => 'required|string|email',
+            'email'       => 'required|email',
             'password'    => 'required|string',
             'remember_me' => 'boolean',
         ]);
+        
+        //Validate attempt
         $credentials = request(['email', 'password']);
         if (!Auth::attempt($credentials)) {
             return response()->json([
-                'message' => 'Unauthorized'], 401);
+                'error' => true,
+                'message' => 'Hay un error en los datos'
+            ], 401);
         }
+
+        //Create token
         $user = $request->user();
         $tokenResult = $user->createToken('Personal Access Token');
         $token = $tokenResult->token;
@@ -29,6 +36,8 @@ class AuthController extends Controller
             $token->expires_at = Carbon::now()->addWeeks(1);
         }
         $token->save();
+
+
         return response()->json([
             'access_token' => $tokenResult->accessToken,
             'token_type'   => 'Bearer',
