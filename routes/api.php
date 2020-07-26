@@ -21,6 +21,9 @@ Route::group(['middleware' => 'api'], function() {
             Route::get('user', 'AuthController@user');
         });
         Route::resource('students','StudentController')->except(['edit','create']);
+        Route::get('genres','GeneralController@getGenres');
+        Route::get('careers','GeneralController@getCareers');
+        Route::get('identification-types','GeneralController@getIdentificationTypes');
     });
 
 });
