@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use DataTables;
 use App\Models\Student;
@@ -14,7 +15,6 @@ class StudentController extends Controller
     public function index()
     {
         $studentsQuery = Student::with(['genre','identification_type','career']);
-
         return DataTables::of($studentsQuery)->toJson();
     }
 
@@ -30,7 +30,7 @@ class StudentController extends Controller
             'success'=>true,
             'message' => 'Usuario creado exitosamente.',
             'stored'=> $newStudent
-        ],200);
+        ],201);
     }
 
 
@@ -40,7 +40,7 @@ class StudentController extends Controller
     public function show($id)
     {
         $student = Student::with(['genre','identification_type','career'])->findOrFail($id);
-        return response()->json($student);
+        return response()->json($student,200);
     }
 
 
@@ -56,7 +56,7 @@ class StudentController extends Controller
             'success'=>true,
             'message' => 'Usuario editado exitosamente.',
             'updated'=> $student
-        ],201);
+        ],200);
     }
 
 
